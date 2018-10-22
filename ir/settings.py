@@ -52,7 +52,6 @@ class SettingsManager:
             'extractRandom': True,
             'extractTextColor': 'White',
             'extractValue': 30,
-            'feedLog': {},
             'generalZoom': 1,
             'highlightBgColor': 'Yellow',
             'highlightKey': 'h',

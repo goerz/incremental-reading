@@ -71,8 +71,6 @@ class SettingsDialog:
         tabWidget.addTab(self._getGeneralTab(), 'General')
         tabWidget.addTab(self._getExtractionTab(), 'Extraction')
         tabWidget.addTab(self._getHighlightTab(), 'Formatting')
-        tabWidget.addTab(self._getSchedulingTab(), 'Scheduling')
-        tabWidget.addTab(self._getImportingTab(), 'Importing')
         tabWidget.addTab(self._getQuickKeysTab(), 'Quick Keys')
         tabWidget.addTab(zoomScrollTab, 'Zoom / Scroll')
 
@@ -112,9 +110,6 @@ class SettingsDialog:
         self.settings['copyTitle'] = self.copyTitleCheckBox.isChecked()
         self.settings['scheduleExtract'] = (
             self.scheduleExtractCheckBox.isChecked())
-        self.settings['soonRandom'] = self.soonRandomCheckBox.isChecked()
-        self.settings['laterRandom'] = self.laterRandomCheckBox.isChecked()
-        self.settings['extractRandom'] = self.extractRandomCheckBox.isChecked()
 
         if self.extractDeckComboBox.currentText() == '[Current Deck]':
             self.settings['extractDeck'] = None
@@ -124,45 +119,10 @@ class SettingsDialog:
                                             .currentText())
 
         try:
-            self.settings['soonValue'] = int(self.soonValueEditBox.text())
-            self.settings['laterValue'] = int(self.laterValueEditBox.text())
-            self.settings['extractValue'] = int(
-                self.extractValueEditBox.text())
             self.settings['maxWidth'] = int(self.widthEditBox.text())
         except ValueError:
             showWarning('Integer value expected. Please try again.')
             done = False
-
-        if self.importDeckComboBox.currentText() == '[Current Deck]':
-            self.settings['importDeck'] = None
-        else:
-            self.settings['importDeck'] = (
-                self.importDeckComboBox.currentText())
-
-        self.settings['sourceFormat'] = self.sourceFormatEditBox.text()
-
-        if (self.prioButton.isChecked() and not self.settings['prioEnabled'])\
-                or (self.noPrioButton.isChecked() and self.settings['prioEnabled']):
-            self.settings['prioEnabled'] = bool(
-                1 - self.settings['prioEnabled'])
-            self.settings['modelName'], self.settings['modelNameBis'] = \
-                self.settings['modelNameBis'], self.settings['modelName']
-            self.modelTransition()
-
-        if self.soonPercentButton.isChecked():
-            self.settings['soonMethod'] = 'percent'
-        else:
-            self.settings['soonMethod'] = 'count'
-
-        if self.laterPercentButton.isChecked():
-            self.settings['laterMethod'] = 'percent'
-        else:
-            self.settings['laterMethod'] = 'count'
-
-        if self.extractPercentButton.isChecked():
-            self.settings['extractMethod'] = 'percent'
-        else:
-            self.settings['extractMethod'] = 'count'
 
         if self.limitAllCardsButton.isChecked():
             self.settings['limitWidth'] = True
@@ -582,125 +542,6 @@ class SettingsDialog:
 
         return groupBox
 
-    def _getSchedulingTab(self):
-        schedModeLabel = QLabel('General scheduling mode')
-        self.noPrioButton = QRadioButton('Soon, Later, Custom')
-        self.prioButton = QRadioButton('Priorities')
-
-        soonLabel = QLabel('Soon Button')
-        laterLabel = QLabel('Later Button')
-        extractLabel = QLabel('Extracts')
-
-        self.soonPercentButton = QRadioButton('Percent')
-        soonPositionButton = QRadioButton('Position')
-        self.laterPercentButton = QRadioButton('Percent')
-        laterPositionButton = QRadioButton('Position')
-        self.extractPercentButton = QRadioButton('Percent')
-        extractPositionButton = QRadioButton('Position')
-
-        self.soonRandomCheckBox = QCheckBox('Randomize')
-        self.laterRandomCheckBox = QCheckBox('Randomize')
-        self.extractRandomCheckBox = QCheckBox('Randomize')
-
-        self.soonValueEditBox = QLineEdit()
-        self.soonValueEditBox.setFixedWidth(100)
-        self.laterValueEditBox = QLineEdit()
-        self.laterValueEditBox.setFixedWidth(100)
-        self.extractValueEditBox = QLineEdit()
-        self.extractValueEditBox.setFixedWidth(100)
-
-        if self.settings['prioEnabled']:
-            self.prioButton.setChecked(True)
-        else:
-            self.noPrioButton.setChecked(True)
-
-        if self.settings['soonMethod'] == 'percent':
-            self.soonPercentButton.setChecked(True)
-        else:
-            soonPositionButton.setChecked(True)
-
-        if self.settings['laterMethod'] == 'percent':
-            self.laterPercentButton.setChecked(True)
-        else:
-            laterPositionButton.setChecked(True)
-
-        if self.settings['extractMethod'] == 'percent':
-            self.extractPercentButton.setChecked(True)
-        else:
-            extractPositionButton.setChecked(True)
-
-        if self.settings['soonRandom']:
-            self.soonRandomCheckBox.setChecked(True)
-
-        if self.settings['laterRandom']:
-            self.laterRandomCheckBox.setChecked(True)
-
-        if self.settings['extractRandom']:
-            self.extractRandomCheckBox.setChecked(True)
-
-        self.soonValueEditBox.setText(str(self.settings['soonValue']))
-        self.laterValueEditBox.setText(str(self.settings['laterValue']))
-        self.extractValueEditBox.setText(str(self.settings['extractValue']))
-
-
-        schedModeLayout = QHBoxLayout()
-        schedModeLayout.addWidget(schedModeLabel)
-        schedModeLayout.addStretch()
-        schedModeLayout.addWidget(self.noPrioButton)
-        schedModeLayout.addWidget(self.prioButton)
-
-        soonLayout = QHBoxLayout()
-        soonLayout.addWidget(soonLabel)
-        soonLayout.addStretch()
-        soonLayout.addWidget(self.soonValueEditBox)
-        soonLayout.addWidget(self.soonPercentButton)
-        soonLayout.addWidget(soonPositionButton)
-        soonLayout.addWidget(self.soonRandomCheckBox)
-
-        laterLayout = QHBoxLayout()
-        laterLayout.addWidget(laterLabel)
-        laterLayout.addStretch()
-        laterLayout.addWidget(self.laterValueEditBox)
-        laterLayout.addWidget(self.laterPercentButton)
-        laterLayout.addWidget(laterPositionButton)
-        laterLayout.addWidget(self.laterRandomCheckBox)
-
-        extractLayout = QHBoxLayout()
-        extractLayout.addWidget(extractLabel)
-        extractLayout.addStretch()
-        extractLayout.addWidget(self.extractValueEditBox)
-        extractLayout.addWidget(self.extractPercentButton)
-        extractLayout.addWidget(extractPositionButton)
-        extractLayout.addWidget(self.extractRandomCheckBox)
-
-        schedModeButtonGroup = QButtonGroup(schedModeLayout)
-        schedModeButtonGroup.addButton(self.noPrioButton)
-        schedModeButtonGroup.addButton(self.prioButton)
-
-        soonButtonGroup = QButtonGroup(soonLayout)
-        soonButtonGroup.addButton(self.soonPercentButton)
-        soonButtonGroup.addButton(soonPositionButton)
-
-        laterButtonGroup = QButtonGroup(laterLayout)
-        laterButtonGroup.addButton(self.laterPercentButton)
-        laterButtonGroup.addButton(laterPositionButton)
-
-        extractButtonGroup = QButtonGroup(extractLayout)
-        extractButtonGroup.addButton(self.extractPercentButton)
-        extractButtonGroup.addButton(extractPositionButton)
-
-        layout = QVBoxLayout()
-        layout.addLayout(schedModeLayout)
-        layout.addLayout(soonLayout)
-        layout.addLayout(laterLayout)
-        layout.addLayout(extractLayout)
-        layout.addStretch()
-
-        tab = QWidget()
-        tab.setLayout(layout)
-
-        return tab
-
     def _getQuickKeysTab(self):
         destDeckLabel = QLabel('Destination Deck')
         noteTypeLabel = QLabel('Note Type')
@@ -977,44 +818,3 @@ class SettingsDialog:
         groupBox.setLayout(layout)
 
         return groupBox
-
-    def _getImportingTab(self):
-        importDeckLabel = QLabel('Imports Deck')
-        self.importDeckComboBox = QComboBox()
-        deckNames = sorted([d['name'] for d in mw.col.decks.all()])
-        self.importDeckComboBox.addItem('[Current Deck]')
-        self.importDeckComboBox.addItems(deckNames)
-
-        if self.settings['importDeck']:
-            setComboBoxItem(self.importDeckComboBox,
-                            self.settings['importDeck'])
-        else:
-            setComboBoxItem(self.importDeckComboBox, '[Current Deck]')
-
-        importDeckLayout = QHBoxLayout()
-        importDeckLayout.addWidget(importDeckLabel)
-        importDeckLayout.addWidget(self.importDeckComboBox)
-        importDeckLayout.addStretch()
-
-        sourceFormatLabel = QLabel('Source Format')
-        self.sourceFormatEditBox = QLineEdit()
-        self.sourceFormatEditBox.setFixedWidth(200)
-        self.sourceFormatEditBox.setText(str(self.settings['sourceFormat']))
-        font = QFont('Lucida Sans Typewriter')
-        font.setStyleHint(QFont.Monospace)
-        self.sourceFormatEditBox.setFont(font)
-
-        sourceFormatLayout = QHBoxLayout()
-        sourceFormatLayout.addWidget(sourceFormatLabel)
-        sourceFormatLayout.addWidget(self.sourceFormatEditBox)
-        sourceFormatLayout.addStretch()
-
-        layout = QVBoxLayout()
-        layout.addLayout(importDeckLayout)
-        layout.addLayout(sourceFormatLayout)
-        layout.addStretch()
-
-        tab = QWidget()
-        tab.setLayout(layout)
-
-        return tab
