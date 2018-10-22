@@ -123,9 +123,12 @@ class ReadingManager:
         mw.col.models.addField(model, sourceField)
 
         template = mw.col.models.newTemplate('IR Card')
-        template['qfmt'] = '<div class="ir-text">{{%s}}</div>' % (
-            self.settings['textField'])
-
+        qfmt_lines = [
+            '<h1>{{%s}}</h1>' % self.settings['textField'],
+            '<div class="ir-source">{{%s}}</div>' % self.settings['sourceField'],
+            '<div class="ir-text">{{%s}}</div>' % self.settings['textField'],
+        ]
+        template['qfmt'] = "\n".join(qfmt_lines)
         template['afmt'] = 'When do you want to see this card again?'
 
         mw.col.models.addTemplate(model, template)
